@@ -1,0 +1,317 @@
+// Version: 3.0.0
+type Data__791452850<K, V> =
+  {var count : Nat__490723111; kvs : [var ?(K, V)]};
+type DiscountType__580212441 = {#fixed : Nat; #percent : Nat};
+type Internal__8484328<K, V> =
+  {children : [var ?Node__46230540<K, V>]; data : Data__791452850<K, V>};
+type Leaf__809889148<K, V> = {data : Data__791452850<K, V>};
+type Map__158565046<K, V> = Map__297112838<K, V>;
+type Map__297112838<K, V> =
+  {var root : Node__46230540<K, V>; var size : Nat__490723111};
+type Map__605269027<K, V> = Map__158565046<K, V>;
+type Nat__490723111 = Nat__920180692;
+type Nat__920180692 = Nat;
+type Node__46230540<K, V> =
+  {#internal : Internal__8484328<K, V>; #leaf : Leaf__809889148<K, V>};
+type OldOrderStatus__13175761 =
+  {#accepted; #cancelled; #delivered; #pending; #pickedUp};
+type OldOrder__235915581 =
+  {
+    createdAt : Int;
+    customerId : Principal;
+    deliveryAddress : Text;
+    deliveryFee : Nat;
+    deliveryPhotoUrl : ?Text;
+    estimatedTime : ?Text;
+    id : Text;
+    packageDescription : Text;
+    packageWeight : Text;
+    pickupAddress : Text;
+    platformFee : Nat;
+    promoDiscount : ?Nat;
+    riderId : ?Principal;
+    riderPayout : Nat;
+    status : OldOrderStatus__13175761;
+    updatedAt : Int
+  };
+type OrderId__197865225 = Text;
+type OrderStatus__838108808 =
+  {#accepted; #cancelled; #delivered; #paymentPending; #pending; #pickedUp};
+type Order__762448211 =
+  {
+    createdAt : Int;
+    customerId : Principal;
+    deliveryAddress : Text;
+    deliveryFee : Nat;
+    deliveryPhotoUrl : ?Text;
+    estimatedTime : ?Text;
+    id : Text;
+    packageDescription : Text;
+    packageWeight : Text;
+    pickupAddress : Text;
+    platformFee : Nat;
+    promoDiscount : ?Nat;
+    riderId : ?Principal;
+    riderPayout : Nat;
+    status : OrderStatus__838108808;
+    updatedAt : Int
+  };
+type PaymentSessionRecord__52384837 =
+  {
+    amount : Nat;
+    createdAt : Timestamp__301639476;
+    customerId : UserId__158757552;
+    orderId : OrderId__197865225;
+    sessionId : Text;
+    status : PaymentSessionStatus__133080361;
+    updatedAt : Timestamp__301639476
+  };
+type PaymentSessionStatus__133080361 =
+  {#failed; #pending; #retrying; #succeeded};
+type PayoutRecord__296304221 =
+  {
+    amount : Nat;
+    createdAt : Timestamp__301639476;
+    id : Text;
+    note : Text;
+    riderId : UserId__158757552;
+    status : PayoutStatus__606198843
+  };
+type PayoutStatus__606198843 = {#completed; #failed; #pending; #processing};
+type PromoCode__222593232 =
+  {
+    code : Text;
+    createdAt : Timestamp__301639476;
+    discountType : DiscountType__580212441;
+    expiresAt : ?Timestamp__301639476;
+    id : Nat;
+    isActive : Bool;
+    maxUses : ?Nat;
+    totalUses : Nat;
+    usesPerUser : ?Nat
+  };
+type PromoUseRecord__323665469 =
+  {
+    discountApplied : Nat;
+    orderId : OrderId__197865225;
+    promoId : Nat;
+    usedAt : Timestamp__301639476;
+    userId : UserId__158757552
+  };
+type RatingRecord__775772709 =
+  {
+    comment : ?Text;
+    createdAt : Timestamp__301639476;
+    customerId : UserId__158757552;
+    id : Nat;
+    orderId : OrderId__197865225;
+    rating : Rating__1029936912;
+    riderId : UserId__158757552
+  };
+type Rating__1029936912 = Nat;
+type ReferralCode__68101573 = Text;
+type ReferralRecord__502422660 =
+  {
+    creditAmount : Nat;
+    id : Nat;
+    redeemedAt : Timestamp__301639476;
+    refereeId : UserId__158757552;
+    referrerId : UserId__158757552
+  };
+type ShareEvent__69565222 =
+  {
+    createdAt : Timestamp__301639476;
+    id : Nat;
+    orderId : ?OrderId__197865225;
+    platform : SharePlatform__382694089;
+    userId : UserId__158757552
+  };
+type SharePlatform__382694089 =
+  {#facebook; #instagram; #other : Text; #twitter; #whatsapp};
+type Timestamp__301639476 = Int;
+type UserId__158757552 = Principal;
+type UserProfile__491224006 =
+  {
+    averageRating : Float;
+    var balance : Int;
+    createdAt : Int;
+    displayName : Text;
+    email : ?Text;
+    id : Principal;
+    isAvailable : Bool;
+    rating : Float;
+    ratingCount : Nat;
+    role : UserRole__599675725;
+    totalDeliveries : Nat;
+    vehicleType : ?VehicleType__174430556
+  };
+type UserRole__1073662873 = {#admin; #guest; #user};
+type UserRole__599675725 = {#customer; #rider};
+type VehicleType__174430556 = {#bicycle; #eBike; #electricWheel};
+actor ({
+  stable accessControlState :
+    {
+      var adminAssigned : Bool;
+      userRoles : Map__605269027<Principal, UserRole__1073662873>
+    };
+  stable var nextOrderId : Nat;
+  stable nextPayoutId : {var value : Nat};
+  stable operatorEmailRef : {var value : Text};
+  in orders : Map__605269027<Text, OldOrder__235915581>;
+  stable paymentSessions :
+    {
+      var root : Node__46230540<Text, PaymentSessionRecord__52384837>;
+      var size : Nat__490723111
+    };
+  stable payoutRecords :
+    {
+      var blockIndex : Nat__490723111;
+      var blocks : [var [var ?PayoutRecord__296304221]];
+      var elementIndex : Nat__490723111
+    };
+  in var platformBalance : Nat;
+  stable promoCodes :
+    {
+      var blockIndex : Nat__490723111;
+      var blocks : [var [var ?PromoCode__222593232]];
+      var elementIndex : Nat__490723111
+    };
+  stable promoUses :
+    {
+      var blockIndex : Nat__490723111;
+      var blocks : [var [var ?PromoUseRecord__323665469]];
+      var elementIndex : Nat__490723111
+    };
+  stable ratings :
+    {
+      var blockIndex : Nat__490723111;
+      var blocks : [var [var ?RatingRecord__775772709]];
+      var elementIndex : Nat__490723111
+    };
+  stable referralCodes :
+    {
+      var root : Node__46230540<Principal, ReferralCode__68101573>;
+      var size : Nat__490723111
+    };
+  stable referralRecords :
+    {
+      var blockIndex : Nat__490723111;
+      var blocks : [var [var ?ReferralRecord__502422660]];
+      var elementIndex : Nat__490723111
+    };
+  stable riderLocations :
+    {
+      var root :
+        Node__46230540<Principal,
+                        {
+                          latitude : Float;
+                          longitude : Float;
+                          updatedAt : Int
+                        }>;
+      var size : Nat__490723111
+    };
+  stable shareEvents :
+    {
+      var blockIndex : Nat__490723111;
+      var blocks : [var [var ?ShareEvent__69565222]];
+      var elementIndex : Nat__490723111
+    };
+  stable stripeConfig : {var secretKey : Text};
+  stable userAverageRatings :
+    {
+      var root : Node__46230540<Principal, (Float, Nat)>;
+      var size : Nat__490723111
+    };
+  stable userCredits :
+    {var root : Node__46230540<Principal, Nat>; var size : Nat__490723111};
+  stable userProfiles :
+    {
+      var root : Node__46230540<Principal, UserProfile__491224006>;
+      var size : Nat__490723111
+    }
+}, {
+  stable accessControlState :
+    {
+      var adminAssigned : Bool;
+      userRoles : Map__605269027<Principal, UserRole__1073662873>
+    };
+  stable var nextOrderId : Nat;
+  stable nextPayoutId : {var value : Nat};
+  stable operatorEmailRef : {var value : Text};
+  stable orders :
+    {
+      var root : Node__46230540<Text, Order__762448211>;
+      var size : Nat__490723111
+    };
+  stable paymentSessions :
+    {
+      var root : Node__46230540<Text, PaymentSessionRecord__52384837>;
+      var size : Nat__490723111
+    };
+  stable payoutRecords :
+    {
+      var blockIndex : Nat__490723111;
+      var blocks : [var [var ?PayoutRecord__296304221]];
+      var elementIndex : Nat__490723111
+    };
+  stable platformBalanceRef : {var value : Nat};
+  stable promoCodes :
+    {
+      var blockIndex : Nat__490723111;
+      var blocks : [var [var ?PromoCode__222593232]];
+      var elementIndex : Nat__490723111
+    };
+  stable promoUses :
+    {
+      var blockIndex : Nat__490723111;
+      var blocks : [var [var ?PromoUseRecord__323665469]];
+      var elementIndex : Nat__490723111
+    };
+  stable ratings :
+    {
+      var blockIndex : Nat__490723111;
+      var blocks : [var [var ?RatingRecord__775772709]];
+      var elementIndex : Nat__490723111
+    };
+  stable referralCodes :
+    {
+      var root : Node__46230540<Principal, ReferralCode__68101573>;
+      var size : Nat__490723111
+    };
+  stable referralRecords :
+    {
+      var blockIndex : Nat__490723111;
+      var blocks : [var [var ?ReferralRecord__502422660]];
+      var elementIndex : Nat__490723111
+    };
+  stable riderLocations :
+    {
+      var root :
+        Node__46230540<Principal,
+                        {
+                          latitude : Float;
+                          longitude : Float;
+                          updatedAt : Int
+                        }>;
+      var size : Nat__490723111
+    };
+  stable shareEvents :
+    {
+      var blockIndex : Nat__490723111;
+      var blocks : [var [var ?ShareEvent__69565222]];
+      var elementIndex : Nat__490723111
+    };
+  stable stripeConfig : {var secretKey : Text};
+  stable userAverageRatings :
+    {
+      var root : Node__46230540<Principal, (Float, Nat)>;
+      var size : Nat__490723111
+    };
+  stable userCredits :
+    {var root : Node__46230540<Principal, Nat>; var size : Nat__490723111};
+  stable userProfiles :
+    {
+      var root : Node__46230540<Principal, UserProfile__491224006>;
+      var size : Nat__490723111
+    }
+});

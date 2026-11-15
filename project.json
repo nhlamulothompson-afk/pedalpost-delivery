@@ -1,0 +1,29 @@
+{
+  "overview": "PedalPost is an eco-friendly parcel delivery platform connecting customers and riders (bicycles and electric vehicles only). Features include real-time order tracking, photo proof of delivery, rider leaderboards, referral rewards, promo codes, and Stripe payment processing — all in South African Rands.",
+  "features": [
+    "Stripe payment charging on rider acceptance",
+    "Manual operator payouts to riders",
+    "Card retry with order locked to same rider",
+    "Live order tracking map with rider location",
+    "Photo proof of delivery",
+    "Referral rewards in ZAR",
+    "Rider leaderboard with badges",
+    "Promo codes at checkout",
+    "Operator analytics dashboard",
+    "Email notifications for all order events"
+  ],
+  "category": "marketplace",
+  "tags": [
+    "delivery",
+    "eco-friendly",
+    "stripe",
+    "payments",
+    "bicycle",
+    "electric",
+    "south-africa",
+    "zar",
+    "marketplace",
+    "riders"
+  ],
+  "last_updated": "2026-05-01T09:15:34.959Z"
+}

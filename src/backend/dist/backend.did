@@ -1,0 +1,325 @@
+type http_request_result = 
+ record {
+   body: blob;
+   headers: vec http_header;
+   status: nat;
+ };
+type http_header = 
+ record {
+   name: text;
+   value: text;
+ };
+type VehicleType = 
+ variant {
+   bicycle;
+   eBike;
+   electricWheel;
+ };
+type UserRole__1 = 
+ variant {
+   admin;
+   guest;
+   user;
+ };
+type UserRole = 
+ variant {
+   customer;
+   rider;
+ };
+type UserProfilePublic = 
+ record {
+   averageRating: float64;
+   balance: int;
+   createdAt: int;
+   displayName: text;
+   email: opt text;
+   id: principal;
+   isAvailable: bool;
+   rating: float64;
+   ratingCount: nat;
+   role: UserRole;
+   totalDeliveries: nat;
+   vehicleType: opt VehicleType;
+ };
+type UserId = principal;
+type TransformationOutput = 
+ record {
+   body: blob;
+   headers: vec http_header;
+   status: nat;
+ };
+type TransformationInput = 
+ record {
+   context: blob;
+   response: http_request_result;
+ };
+type TopRiderEntry = 
+ record {
+   averageRating: float64;
+   deliveriesCompleted: nat;
+   displayName: text;
+   totalEarnings: int;
+   userId: UserId;
+ };
+type TopCustomerEntry = 
+ record {
+   displayName: text;
+   ordersPlaced: nat;
+   totalSpend: nat;
+   userId: UserId;
+ };
+type Timestamp = int;
+type StripeSessionStatus = 
+ variant {
+   completed: record {
+                response: text;
+                userPrincipal: opt text;
+              };
+   failed: record {error: text;};
+ };
+type SharePlatform = 
+ variant {
+   facebook;
+   instagram;
+   other: text;
+   twitter;
+   whatsapp;
+ };
+type ShareEvent = 
+ record {
+   createdAt: Timestamp;
+   id: nat;
+   orderId: opt OrderId;
+   platform: SharePlatform;
+   userId: UserId;
+ };
+type RiderLocation = 
+ record {
+   latitude: float64;
+   longitude: float64;
+   updatedAt: int;
+ };
+type ReferralRecord = 
+ record {
+   creditAmount: nat;
+   id: nat;
+   redeemedAt: Timestamp;
+   refereeId: UserId;
+   referrerId: UserId;
+ };
+type ReferralAnalytics = 
+ record {
+   referralsThisPeriod: nat;
+   totalCreditsIssued: nat;
+   totalReferrals: nat;
+ };
+type RatingRecord = 
+ record {
+   comment: opt text;
+   createdAt: Timestamp;
+   customerId: UserId;
+   id: nat;
+   orderId: OrderId;
+   rating: Rating;
+   riderId: UserId;
+ };
+type Rating = nat;
+type PromoStats = 
+ record {
+   totalCodes: nat;
+   totalDiscountGiven: nat;
+   totalUses: nat;
+ };
+type PromoCode = 
+ record {
+   code: text;
+   createdAt: Timestamp;
+   discountType: DiscountType;
+   expiresAt: opt Timestamp;
+   id: nat;
+   isActive: bool;
+   maxUses: opt nat;
+   totalUses: nat;
+   usesPerUser: opt nat;
+ };
+type PromoAnalytics = 
+ record {
+   totalCodesCreated: nat;
+   totalDiscountGivenThisPeriod: nat;
+   totalUsesThisPeriod: nat;
+ };
+type PayoutStatus = 
+ variant {
+   completed;
+   failed;
+   pending;
+   processing;
+ };
+type PayoutRecord = 
+ record {
+   amount: nat;
+   createdAt: Timestamp;
+   id: text;
+   note: text;
+   riderId: UserId;
+   status: PayoutStatus;
+ };
+type PaymentSessionStatus = 
+ variant {
+   failed;
+   pending;
+   retrying;
+   succeeded;
+ };
+type PaymentSessionRecord = 
+ record {
+   amount: nat;
+   createdAt: Timestamp;
+   customerId: UserId;
+   orderId: OrderId;
+   sessionId: text;
+   status: PaymentSessionStatus;
+   updatedAt: Timestamp;
+ };
+type OrderStatus = 
+ variant {
+   accepted;
+   cancelled;
+   delivered;
+   paymentPending;
+   pending;
+   pickedUp;
+ };
+type OrderId = text;
+type Order = 
+ record {
+   createdAt: int;
+   customerId: principal;
+   deliveryAddress: text;
+   deliveryFee: nat;
+   deliveryPhotoUrl: opt text;
+   estimatedTime: opt text;
+   id: text;
+   packageDescription: text;
+   packageWeight: text;
+   pickupAddress: text;
+   platformFee: nat;
+   promoDiscount: opt nat;
+   riderId: opt principal;
+   riderPayout: nat;
+   status: OrderStatus;
+   updatedAt: int;
+ };
+type OperatorPayoutDashboard = 
+ record {
+   payouts: vec PayoutRecord;
+   totalCommissionEarned: nat;
+   totalPayoutsCompleted: nat;
+   totalPayoutsPending: nat;
+ };
+type LeaderboardEntry = 
+ record {
+   averageRating: float64;
+   badgeTier: BadgeTier;
+   deliveriesCompleted: nat;
+   displayName: text;
+   totalEarnings: int;
+   userId: UserId;
+   vehicleType: opt VehicleType;
+ };
+type DiscountType = 
+ variant {
+   fixed: nat;
+   percent: nat;
+ };
+type DailyStat = 
+ record {
+   commission: nat;
+   date: text;
+   ordersDelivered: nat;
+   ordersPlaced: nat;
+ };
+type BadgeTier = 
+ variant {
+   bronze;
+   default;
+   gold;
+   silver;
+ };
+type AnalyticsDashboard = 
+ record {
+   dailyStats: vec DailyStat;
+   periodDays: nat;
+   promoStats: PromoAnalytics;
+   referralStats: ReferralAnalytics;
+   topCustomers: vec TopCustomerEntry;
+   topRiders: vec TopRiderEntry;
+   totalCommission: nat;
+ };
+service : {
+  _initializeAccessControl: () -> ();
+  acceptOrder: (orderId: text) -> (Order);
+  applyPromoCode: (orderId: OrderId, code: text) -> (nat);
+  assignCallerUserRole: (user: principal, role: UserRole__1) -> ();
+  cancelOrder: (orderId: text) -> (Order);
+  completeRiderPayout: (payoutId: text) -> ();
+  confirmOrderPayment: (orderId: text, sessionId: text) -> (bool);
+  createCheckoutSession: (orderId: text, successUrl: text, cancelUrl:
+   text) -> (text);
+  createPromoCode: (code: text, discountType: DiscountType, expiresAt:
+   opt Timestamp, maxUses: opt nat, usesPerUser: opt nat) -> (PromoCode);
+  deactivatePromoCode: (code: text) -> (bool);
+  getAllOrders: () -> (vec Order) query;
+  getAllRiders: () -> (vec UserProfilePublic) query;
+  getAnalyticsDashboard: (periodDays: opt nat) -> (AnalyticsDashboard) query;
+  getCallerUserProfile: () -> (opt UserProfilePublic) query;
+  getCallerUserRole: () -> (UserRole__1) query;
+  getLeaderboard: () -> (vec LeaderboardEntry) query;
+  getMyCreditBalance: () -> (nat) query;
+  getMyOrders: () -> (vec Order) query;
+  getMyReferralCode: () -> (text);
+  getMyReferralHistory: () -> (vec ReferralRecord) query;
+  getMyRiderOrders: () -> (vec Order) query;
+  getMyShareCount: () -> (nat) query;
+  getOperatorEmail: () -> (text) query;
+  getOperatorPayoutDashboard: () -> (OperatorPayoutDashboard) query;
+  getOrder: (orderId: text) -> (opt Order) query;
+  getOrderPaymentSession: (orderId: text) -> (opt PaymentSessionRecord) query;
+  getOrderStats: () ->
+   (record {
+      cancelled: nat;
+      delivered: nat;
+      pending: nat;
+      total: nat;
+    }) query;
+  getPendingOrders: () -> (vec Order) query;
+  getPlatformBalance: () -> (nat) query;
+  getPromoStats: () -> (PromoStats) query;
+  getRiderLocation: (riderId: principal) -> (opt RiderLocation) query;
+  getRiderPayoutHistory: (riderId: principal) -> (vec PayoutRecord) query;
+  getRiderRatings: (riderId: UserId) -> (vec RatingRecord) query;
+  getStripeSessionStatus: (sessionId: text) -> (StripeSessionStatus);
+  getUserProfile: (userId: principal) -> (opt UserProfilePublic) query;
+  getUserReferralLink: () -> (text);
+  initiateRiderPayout: (riderId: principal, amount: nat, note: text) ->
+   (PayoutRecord);
+  isCallerAdmin: () -> (bool) query;
+  isStripeConfigured: () -> (bool) query;
+  markDelivered: (orderId: text, deliveryPhotoUrl: opt text) -> (Order);
+  markPickedUp: (orderId: text) -> (Order);
+  placeOrder: (pickupAddress: text, deliveryAddress: text,
+   packageDescription: text, packageWeight: text, deliveryFee: nat) ->
+   (Order);
+  rateRider: (orderId: OrderId, rating: Rating, comment: opt text) ->
+   (RatingRecord);
+  recordShareEvent: (orderId: opt OrderId, platform: SharePlatform) ->
+   (ShareEvent);
+  redeemReferralCode: (code: text) -> (bool);
+  saveCallerUserProfile: (displayName: text, role: UserRole, vehicleType:
+   opt VehicleType, email: opt text) -> (UserProfilePublic);
+  setOperatorEmail: (email: text) -> ();
+  setStripeConfiguration: (key: text) -> ();
+  transform: (input: TransformationInput) -> (TransformationOutput) query;
+  updateRiderLocation: (latitude: float64, longitude: float64) -> ();
+  withdrawRiderBalance: (amount: nat) -> (bool);
+}
